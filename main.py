@@ -1,10 +1,36 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
+import os
+from operator import itemgetter
 
-def instantaneous_euclidean_distance(control, test, NUM_FRAMES, NUM_POINTS):
+def get_test_names(dir_path):
+    #assumes folder only contains video files
+    return os.listdir(dir_path)
+
+def calc_avg_displacement(vid_data, NUM_PARTS):
+    initial=vid_data[0]
+    sum_disp = 0
+    c=0
+    for i in range(len(vid_data)):
+        for n in range(NUM_PARTS):
+            if initial[n] and vid_data[i][n]:
+                c+=1
+
+                x_n = initial[n][0]
+                y_n = initial[n][1]
+
+                X_n = vid_data[i][n][0]
+                Y_n = vid_data[i][n][1]
+
+                sum_disp += (x_n - X_n)**2 + (y_n - Y_n)**2
+
+    return sum_disp/c
+
+
+def instantaneous_euclidean_distance(control, test, NUM_FRAMES, NUM_PARTS):
     dist_sum = 0;
     for i in range(NUM_FRAMES):
-        for n in range(NUM_POINTS):
+        for n in range(NUM_PARTS):
             if control[i][n] and test[i][n]:
                 x_n = control[i][n][0]
                 y_n = control[i][n][1]
@@ -36,10 +62,9 @@ def generate_data(vidpath):
     while cv.waitKey(1) < 0:
         hasFrame, frame = cap.read()
         if not hasFrame:
-            cv.waitKey()
             break
 
-        frame = cv.rotate(frame, cv.ROTATE_180)
+        #frame = cv.rotate(frame, cv.ROTATE_180) #ONLY needed if raw iPhone data
 
         frameWidth = frame.shape[1]
         frameHeight = frame.shape[0]
@@ -88,35 +113,52 @@ def generate_data(vidpath):
 
     return data
 
+def show_16_vids(data_path, vid_list):
+    caps = []
+    for vid in vid_list:
+        caps.append(cv.VideoCapture(data_path+vid['name']))
+
+    hasFrame = True;
+    while hasFrame and cv.waitKey(1) < 0:
+        horiz_list=[]
+        for i in range(4):
+            hasFrame0, frame0 = caps[4*i].read()
+            hasFrame1, frame1 = caps[4*i + 1].read()
+            hasFrame2, frame2 = caps[4*i + 2].read()
+            hasFrame3, frame3 = caps[4*i + 3].read()
+            if not (hasFrame0 and hasFrame1 and hasFrame2 and hasFrame3):
+                break;
+            horiz_list.append(cv.hconcat([hasFrame0,hasFrame1,hasFrame2,hasFrame3]))
+        final_grid = cv.vconcat(horiz_list)
+
+        cv.imshow('Please Work', final_grid) #Not quite
+
+
+
+
+
+
 def main():
     # Test Constants
-    vi = "drama.mov"
-    vii = "shoulders.mov"
-    viii = "sinearms.mov"
+    data_path = "/Users/emmawaters/Desktop/Dance/greenTest/"
+    vid_names = get_test_names(data_path)
+    vids_data = []
 
-    base = "shoulders.mov"
+    NUM_FRAMES = float('inf')
+    NUM_PARTS = 19
 
-    NUM_FRAMES = 80
-    NUM_POINTS = 19
+    for i in range(len(vid_names)):
+        data = generate_data(data_path + vid_names[i])
+        avg_r = calc_avg_displacement(data, NUM_PARTS)
 
-    vi_data = generate_data(vi)
-    vii_data = generate_data(vii)
-    viii_data = generate_data(viii)
+        data_dict = {'name': vid_names[i], 'avg_r' : avg_r}
+        vids_data.append(data_dict)
 
-    base_data = generate_data(base)
+        if len(data) < NUM_FRAMES:
+            NUM_FRAMES = len(data)
 
-    print(len(vi_data))
-    print(len(vii_data))
-    print(len(viii_data))
-
-    vi_res = instantaneous_euclidean_distance(base_data, vi_data, NUM_FRAMES, NUM_POINTS)
-    vii_res = instantaneous_euclidean_distance(base_data, vii_data, NUM_FRAMES, NUM_POINTS)
-    viii_res = instantaneous_euclidean_distance(base_data, viii_data, NUM_FRAMES, NUM_POINTS)
-
-    print("vi: " + str(vi_res))
-    print("vii: " + str(vii_res))
-    print("viii: " + str(viii_res))
-
+    sorted_by_r = sorted(vids_data, key=itemgetter('avg_r'))
+    show_16_vids(data_path, sorted_by_r)
 
 if __name__ == '__main__':
     main()
