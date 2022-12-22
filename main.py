@@ -111,6 +111,7 @@ def generate_data(vidpath):
 
         cv.imshow('OpenPose using OpenCV', frame)
 
+    cv.destroyWindow('OpenPose using OpenCV')
     return data
 
 def show_16_vids(data_path, vid_list):
@@ -128,14 +129,10 @@ def show_16_vids(data_path, vid_list):
             hasFrame3, frame3 = caps[4*i + 3].read()
             if not (hasFrame0 and hasFrame1 and hasFrame2 and hasFrame3):
                 break;
-            horiz_list.append(cv.hconcat([hasFrame0,hasFrame1,hasFrame2,hasFrame3]))
+            horiz_list.append(cv.hconcat([frame0,frame1,frame2,frame3]))
         final_grid = cv.vconcat(horiz_list)
 
         cv.imshow('Please Work', final_grid) #Not quite
-
-
-
-
 
 
 def main():
@@ -151,14 +148,30 @@ def main():
         data = generate_data(data_path + vid_names[i])
         avg_r = calc_avg_displacement(data, NUM_PARTS)
 
-        data_dict = {'name': vid_names[i], 'avg_r' : avg_r}
+        data_dict = {'name': vid_names[i], 'avg_r' : avg_r, 'data': data}
         vids_data.append(data_dict)
 
         if len(data) < NUM_FRAMES:
             NUM_FRAMES = len(data)
 
     sorted_by_r = sorted(vids_data, key=itemgetter('avg_r'))
-    show_16_vids(data_path, sorted_by_r)
+
+    #pick vid with min and max avg r
+    min_r_vid = sorted_by_r[0]
+    max_r_vid = sorted_by_r[-1]
+
+    #get distance values to these two for all
+    for i in range(len(vids_data)):
+        diff_to_r_min = instantaneous_euclidean_distance(min_r_vid['data'], vids_data[i]['data'], NUM_FRAMES, NUM_PARTS)
+        diff_to_r_max = instantaneous_euclidean_distance(max_r_vid['data'], vids_data[i]['data'], NUM_FRAMES, NUM_PARTS)
+        if diff_to_r_max == 0:
+            vids_data[i]['diff_ratio'] = float('inf')
+        else:
+            vids_data[i]['diff_ratio'] = diff_to_r_min/diff_to_r_max
+
+    sorted_by_ratio = sorted(vids_data, key=itemgetter('diff_ratio'))
+
+    #show_16_vids(data_path, sorted_by_ratio)
 
 if __name__ == '__main__':
     main()
