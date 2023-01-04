@@ -160,16 +160,24 @@ def main():
     min_r_vid = sorted_by_r[0]
     max_r_vid = sorted_by_r[-1]
 
+    matrix = [ [ 0 for i in range(len(vids_data)) ] for j in range(len(vids_data)) ]
+    max_diff = 0
+
     #get distance values to these two for all
     for i in range(len(vids_data)):
-        diff_to_r_min = instantaneous_euclidean_distance(min_r_vid['data'], vids_data[i]['data'], NUM_FRAMES, NUM_PARTS)
-        diff_to_r_max = instantaneous_euclidean_distance(max_r_vid['data'], vids_data[i]['data'], NUM_FRAMES, NUM_PARTS)
-        if diff_to_r_max == 0:
-            vids_data[i]['diff_ratio'] = float('inf')
-        else:
-            vids_data[i]['diff_ratio'] = diff_to_r_min/diff_to_r_max
+        for j in range(len(vids_data)):
+            diff = instantaneous_euclidean_distance(vids_data[i]['data'], vids_data[j]['data'], NUM_FRAMES, NUM_PARTS)
+            matrix[i][j] = diff
+            if diff > max_diff:
+                max_diff = diff
 
-    sorted_by_ratio = sorted(vids_data, key=itemgetter('diff_ratio'))
+    for i in range(len(vids_data)):
+        for j in range(len(vids_data)):
+            matrix[i][j] = round(matrix[i][j]/max_diff, 4)
+
+
+    print(matrix)
+    #sorted_by_ratio = sorted(vids_data, key=itemgetter('diff_ratio'))
 
     #show_16_vids(data_path, sorted_by_ratio)
 
