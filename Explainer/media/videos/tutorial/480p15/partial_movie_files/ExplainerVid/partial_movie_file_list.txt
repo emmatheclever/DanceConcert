@@ -1,0 +1,9 @@
+# This file is used internally by FFMPEG.
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/4266129954_9646889_2358810818.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_190800790_631829896.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_2857460060_37868785.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_2896698338_2577753451.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_4251678594_2289549616.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_3315967912_3558537741.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_2080333816_253541849.mp4'
+file 'file:/Users/emmawaters/Documents/GitHub/DanceConcert/Explainer/media/videos/tutorial/480p15/partial_movie_files/ExplainerVid/1442284246_3315967912_2386917918.mp4'
